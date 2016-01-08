@@ -186,7 +186,6 @@ ngx_http_anddos_request_handler(ngx_http_request_t *r) {
 
     ngx_int_t rc;
     ngx_buf_t *b;
-    ngx_chain_t out;
 
     //DECIDE whether is request bot or not
     //KISS, one condition, rest logic is moved to the learn_filter
@@ -225,9 +224,6 @@ ngx_http_anddos_request_handler(ngx_http_request_t *r) {
     if (b == NULL) {
         return NGX_HTTP_INTERNAL_SERVER_ERROR;
     }
-    /* attach this buffer to the buffer chain */
-    out.buf = b;
-    out.next = NULL;
     /* adjust the pointers of the buffer */
     b->pos = ngx_anddos_fail_string;
     b->last = ngx_anddos_fail_string + sizeof (ngx_anddos_fail_string) - 1;
