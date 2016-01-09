@@ -23,7 +23,7 @@
 #define HASHTABLESIZE 10240      //100k in production
 #define STATE_FILE "/tmp/anddos_state"
 #define SEQSIZE 32
-#define INITTHRESHOLD 160
+#define INITTHRESHOLD 9999
 #define DEBUG 1
 
 //function declarations
@@ -423,7 +423,9 @@ ngx_http_anddos_decide(ngx_http_request_t *r, int key) {
     // if client's param differs to global param by more than threshold, block
     // threshold depends on reqs count, global state, statistic function
     // scores are kept from time, when last request was served (->first client)
-
+    if (ngx_http_anddos_state.request_count <= 2500){
+      return ngx_http_anddos_clients[key].set;
+    }
     int dec;
     dec = 1;
 
@@ -613,7 +615,7 @@ ngx_http_anddos_learn_filter(ngx_http_request_t *r) {
         ngx_http_anddos_clients[key].set = ngx_http_anddos_decide(r, key);
         if(ngx_http_anddos_clients[key].set == 2) {
           if (DEBUG)
-            ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "ANDDOS BANNING CLIENT");
+            ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "ANDDOS BANNING CLIENT");
           ngx_http_anddos_clients[key].banned = (int)time(NULL) + 600;
         }
 
